@@ -1,0 +1,13 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: raycluster-capacity-policy
+spec:
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: Exists
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: raycluster
