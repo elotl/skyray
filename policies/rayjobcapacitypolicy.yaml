@@ -1,0 +1,14 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayjob-capacity-policy-${RAYCLUSTER_NAMESPACE}
+spec:
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayjob
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${RAYCLUSTER_NAMESPACE}
+  groupBy:
+    labelKey: app.kubernetes.io/instance
