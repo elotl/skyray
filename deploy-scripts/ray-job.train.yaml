@@ -100,6 +100,10 @@ spec:
             annotations:
               key: value
           spec:
+            tolerations:
+              - key: nvidia.com/gpu
+                effect: NoSchedule
+                operator: Exists
             containers:
               - name: machine-learning # must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc'
                 image: rayproject/ray-ml:2.2.0-gpu
