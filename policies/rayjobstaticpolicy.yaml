@@ -1,0 +1,18 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayjob-static-policy
+spec:
+  clusterSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: "static-cluster"
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: Exists
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayjob
+  groupBy:
+    labelKey: app.kubernetes.io/instance
