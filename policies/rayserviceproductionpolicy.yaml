@@ -1,0 +1,15 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayservice-production-policy
+spec:
+  clusterSelector:
+    matchLabels:
+      cluster.class: production
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: production
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayservice

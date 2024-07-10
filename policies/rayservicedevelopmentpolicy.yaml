@@ -1,0 +1,15 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayservice-development-policy
+spec:
+  clusterSelector:
+    matchLabels:
+      cluster.class: development
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: development
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayservice
