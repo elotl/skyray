@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overprovisioning
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: overprovisioning
+  template:
+    metadata:
+      labels:
+        run: overprovisioning
+        elotl-luna: "true"
+    spec:
+      priorityClassName: overprovisioning
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: reserve-resources
+        image: registry.k8s.io/pause:3.9
+        resources:
+          requests:
+            cpu: 6
+            memory: "28G"
+          limits:
+            cpu: 6
+            memory: "28G"
