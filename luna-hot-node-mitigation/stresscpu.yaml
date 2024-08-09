@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-stress-deployment
+  labels:
+    app: cpu-stress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpu-stress
+  template:
+    metadata:
+      labels:
+        app: cpu-stress
+        elotl-luna: "true"
+    spec:
+      containers:
+        - name: stress-ng
+          image: litmuschaos/stress-ng:latest
+          args:
+            - "--cpu"
+            - "6" # Run 6 CPU stress workers
+            - "-t"
+            - "3600s" # Run for 3600 seconds (60 minutes)
