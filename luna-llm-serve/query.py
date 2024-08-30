@@ -13,7 +13,7 @@ chat_completion = client.chat.completions.create(
         {"role": "system", "content": "You are a helpful assistant."},
         {
             "role": "user",
-            "content": "What are some highly rated restaurants in San Francisco?'",
+            "content": "What are some highly rated restaurants in San Francisco?",
         },
     ],
     temperature=0.01,
