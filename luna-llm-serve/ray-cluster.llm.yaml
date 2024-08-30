@@ -1,0 +1,59 @@
+# Note: derived from: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/ai-ml/gke-ray/rayserve/llm/
+
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: llm-model-serve
+spec:
+    headGroupSpec:
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+        spec:
+          containers:
+          - name: ray-head
+            image: anyscale/ray-ml:2.32.0
+            resources:
+              limits:
+                cpu: "2"
+                memory: "8Gi"
+              requests:
+                cpu: "2"
+                memory: "8Gi"
+            ports:
+            - containerPort: 6379
+              name: gcs-server
+            - containerPort: 8265
+              name: dashboard
+            - containerPort: 10001
+              name: client
+            - containerPort: 8000
+              name: serve
+    workerGroupSpecs:
+    - replicas: 1
+      minReplicas: 0
+      maxReplicas: 4
+      groupName: gpu-group
+      rayStartParams: {}
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+          annotations:
+            node.elotl.co/instance-gpu-skus: "L4,A10G,A10,L40S"
+        spec:
+          containers:
+          - name: llm
+            image: anyscale/ray-ml:2.32.0
+            resources:
+              limits:
+                cpu: "8"
+                memory: "20Gi"
+                nvidia.com/gpu: "1"
+              requests:
+                cpu: "8"
+                memory: "20Gi"
+                nvidia.com/gpu: "1"

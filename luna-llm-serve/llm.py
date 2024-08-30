@@ -138,6 +138,3 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
         parsed_args.lora_modules,
         chat_template,
     )
-
-model = build_app(
-    {"model": os.environ['MODEL_ID'], "tensor-parallel-size": os.environ['TENSOR_PARALLELISM']})
