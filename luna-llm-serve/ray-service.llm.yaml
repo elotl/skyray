@@ -6,6 +6,7 @@ metadata:
   name: llm-model-serve
 spec:
   serveConfigV2: |
+    applications:
     - name: llm
       route_prefix: /
       import_path:  luna-llm-serve.llm:model
@@ -13,14 +14,14 @@ spec:
       - name: VLLMDeployment
         num_replicas: 1
         ray_actor_options:
-          num_cpus: 8
+          num_cpus: 1
           # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
       runtime_env:
         working_dir: "https://github.com/elotl/skyray/archive/main.zip"
         pip: ["vllm==0.4.3"]
         env_vars:
-          MODEL_ID: mosaicml/mpt-7b-chat
-          TENSOR_PARALLELISM: 1
+          MODEL_ID: "mosaicml/mpt-7b-chat"
+          TENSOR_PARALLELISM: "1"
   rayClusterConfig:
     headGroupSpec:
       rayStartParams:
