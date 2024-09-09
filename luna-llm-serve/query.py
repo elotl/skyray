@@ -1,5 +1,7 @@
 from openai import OpenAI
 
+query = input("Enter a query, e.g., What are some highly rated restaurants in San Francisco?: ")
+
 # Note: Ray Serve doesn't support all OpenAI client arguments and may ignore some.
 client = OpenAI(
     # Replace the URL if deploying your app remotely
@@ -13,7 +15,7 @@ chat_completion = client.chat.completions.create(
         {"role": "system", "content": "You are a helpful assistant."},
         {
             "role": "user",
-            "content": "What are some highly rated restaurants in San Francisco?",
+            "content": query,
         },
     ],
     temperature=0.01,
