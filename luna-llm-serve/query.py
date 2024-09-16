@@ -25,3 +25,4 @@ chat_completion = client.chat.completions.create(
 for chat in chat_completion:
     if chat.choices[0].delta.content is not None:
         print(chat.choices[0].delta.content, end="")
+print("")

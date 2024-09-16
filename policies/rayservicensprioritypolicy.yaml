@@ -1,0 +1,21 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayservice-policy-${RAYCLUSTER_NAMESPACE}
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - cpu-us-west-2
+          - ingest-us-west-2
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${RAYCLUSTER_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayservice
+  groupBy:
+    labelKey: app.kubernetes.io/instance

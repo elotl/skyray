@@ -4,6 +4,8 @@ apiVersion: ray.io/v1
 kind: RayService
 metadata:
   name: llm-model-serve
+  labels:
+    app.kubernetes.io/instance: rayservice
 spec:
   serveConfigV2: |
     applications:
@@ -75,3 +77,7 @@ spec:
                 cpu: "8"
                 memory: "20Gi"
                 nvidia.com/gpu: "1"
+          tolerations:
+            - key: nvidia.com/gpu
+              effect: NoSchedule
+              operator: Exists
