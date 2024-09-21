@@ -5,11 +5,11 @@ metadata:
 spec:
   orderedClusterSelector:
     matchExpressions:
-      - key: kubernetes.io/metadata.name
+      - key: nova.elotl.co/cluster.provider
         operator: In
         values:
-          - cpu-us-west-2
-          - ingest-us-west-2
+          - gce
+          - aws
   namespaceSelector:
     matchLabels:
       kubernetes.io/metadata.name: ${RAYCLUSTER_NAMESPACE}
