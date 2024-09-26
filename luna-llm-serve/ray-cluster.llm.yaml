@@ -15,7 +15,7 @@ spec:
         spec:
           containers:
           - name: ray-head
-            image: anyscale/ray-ml:2.32.0
+            image: rayproject/ray-ml:2.33.0.914af0-py311
             resources:
               limits:
                 cpu: "2"
@@ -47,7 +47,7 @@ spec:
         spec:
           containers:
           - name: llm
-            image: anyscale/ray-ml:2.32.0
+            image: rayproject/ray-ml:2.33.0.914af0-py311
             resources:
               limits:
                 cpu: "8"
@@ -57,3 +57,7 @@ spec:
                 cpu: "8"
                 memory: "20Gi"
                 nvidia.com/gpu: "1"
+          tolerations:
+            - key: nvidia.com/gpu
+              effect: NoSchedule
+              operator: Exists

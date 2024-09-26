@@ -20,7 +20,7 @@ spec:
           # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
       runtime_env:
         working_dir: "https://github.com/elotl/skyray/archive/main.zip"
-        pip: ["vllm==0.4.3"]
+        pip: ["vllm==0.5.4"]
         env_vars:
           MODEL_ID: "mosaicml/mpt-7b-chat"
           TENSOR_PARALLELISM: "1"
@@ -35,7 +35,7 @@ spec:
         spec:
           containers:
           - name: ray-head
-            image: anyscale/ray-ml:2.32.0
+            image: rayproject/ray-ml:2.33.0.914af0-py311
             resources:
               limits:
                 cpu: "2"
@@ -67,7 +67,7 @@ spec:
         spec:
           containers:
           - name: llm
-            image: anyscale/ray-ml:2.32.0
+            image: rayproject/ray-ml:2.33.0.914af0-py311
             resources:
               limits:
                 cpu: "8"

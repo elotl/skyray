@@ -19,6 +19,7 @@ from vllm.entrypoints.openai.protocol import (
 )
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_engine import LoRAModulePath
+from vllm.utils import FlexibleArgumentParser
 
 logger = logging.getLogger("ray.serve")
 
@@ -69,10 +70,12 @@ class VLLMDeployment:
             self.openai_serving_chat = OpenAIServingChat(
                 self.engine,
                 model_config,
-                served_model_names,
-                self.response_role,
+                served_model_names=served_model_names,
+                response_role=self.response_role,
                 lora_modules=self.lora_modules,
                 chat_template=self.chat_template,
+                prompt_adapters=None,
+                request_logger=None,
             )
         logger.info(f"Request: {request}")
         generator = await self.openai_serving_chat.create_chat_completion(
@@ -95,8 +98,8 @@ def parse_vllm_args(cli_args: Dict[str, str]):
     Currently uses argparse because vLLM doesn't expose Python models for all of the
     config options we want to support.
     """
-
-    parser = make_arg_parser()
+    parser = FlexibleArgumentParser(description="vLLM CLI")
+    parser = make_arg_parser(parser)
     arg_strings = []
     for key, value in cli_args.items():
         arg_strings.extend([f"--{key}", str(value)])
