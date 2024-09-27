@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-query = input("Enter a query, e.g., What are some highly rated restaurants in San Francisco?: ")
+query = input("Type your query here: ")
 
 # Note: Ray Serve doesn't support all OpenAI client arguments and may ignore some.
 client = OpenAI(
