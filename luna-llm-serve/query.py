@@ -1,6 +1,8 @@
 from openai import OpenAI
+import os
 
 query = input("Type your query here: ")
+modelid = os.getenv("MODEL_ID", "mosaicml/mpt-7b-chat")
 
 # Note: Ray Serve doesn't support all OpenAI client arguments and may ignore some.
 client = OpenAI(
@@ -10,7 +12,7 @@ client = OpenAI(
     api_key="NOT A REAL KEY",
 )
 chat_completion = client.chat.completions.create(
-    model="mosaicml/mpt-7b-chat",
+    model=modelid,
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {
