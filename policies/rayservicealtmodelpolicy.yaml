@@ -1,0 +1,15 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayservice-altmodel-policy
+spec:
+  clusterSelector:
+    matchLabels:
+      cluster.model: altmodel
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${RAYCLUSTER_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayservice

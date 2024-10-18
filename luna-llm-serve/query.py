@@ -3,12 +3,13 @@ import os
 
 query = input("Type your query here: ")
 modelid = os.getenv("MODEL_ID", "mosaicml/mpt-7b-chat")
+modelurl = os.getenv("MODEL_URL", "http://localhost:8000/v1")
 
 # Note: Ray Serve doesn't support all OpenAI client arguments and may ignore some.
 client = OpenAI(
     # Replace the URL if deploying your app remotely
     # (e.g., on Anyscale or KubeRay).
-    base_url="http://localhost:8000/v1",
+    base_url=modelurl,
     api_key="NOT A REAL KEY",
 )
 chat_completion = client.chat.completions.create(
