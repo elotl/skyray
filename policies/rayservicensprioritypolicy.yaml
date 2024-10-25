@@ -8,6 +8,7 @@ spec:
       - key: nova.elotl.co/cluster.provider
         operator: In
         values:
+          - openstack
           - gce
           - aws
   namespaceSelector:
