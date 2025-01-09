@@ -1,6 +1,6 @@
 # Note: derived from: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/ai-ml/gke-ray/rayserve/llm/
-# Note: gcr.io/elotl-dev/rayproject/ray-ml:2.33.0.914af0-py311-vllm-0.5.4-hfxfr is a private image
-#  built from rayproject/ray-ml:2.33.0.914af0-py311 + pip install vllm==0.5.4 + pip install hf_transfer
+# Note: 689494258501.dkr.ecr.us-west-2.amazonaws.com/qa-in-a-box:ray-ml-2.33.0-py311-vllm-0.5.4-hfxfr is a private
+#  image built from public.ecr.aws/anyscale/ray-ml:2.33.0-py311 + pip install vllm==0.5.4 + pip install hf_transfer
 apiVersion: ray.io/v1
 kind: RayService
 metadata:
@@ -30,6 +30,17 @@ spec:
           MODEL_ID: "microsoft/Phi-3-mini-4k-instruct"
           TENSOR_PARALLELISM: "1"
   rayClusterConfig:
+    ## raycluster autoscaling config
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      upscalingMode: Default
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1000Mi"
+        requests:
+          cpu: "1"
+          memory: "1000Mi"
     headGroupSpec:
       rayStartParams:
         dashboard-host: '0.0.0.0'
@@ -40,7 +51,7 @@ spec:
         spec:
           containers:
           - name: ray-head
-            image: gcr.io/elotl-dev/rayproject/ray-ml:2.33.0.914af0-py311-vllm-0.5.4-hfxfr
+            image: 689494258501.dkr.ecr.us-west-2.amazonaws.com/qa-in-a-box:ray-ml-2.33.0-py311-vllm-0.5.4-hfxfr
             env:
               - name: HF_HUB_ENABLE_HF_TRANSFER
                 value: "1"
@@ -63,7 +74,7 @@ spec:
             - containerPort: 8000
               name: serve
     workerGroupSpecs:
-    - replicas: 1
+    - replicas: 0
       minReplicas: 0
       maxReplicas: 4
       groupName: gpu-group
@@ -77,7 +88,7 @@ spec:
         spec:
           containers:
           - name: llm
-            image: gcr.io/elotl-dev/rayproject/ray-ml:2.33.0.914af0-py311-vllm-0.5.4-hfxfr
+            image: 689494258501.dkr.ecr.us-west-2.amazonaws.com/qa-in-a-box:ray-ml-2.33.0-py311-vllm-0.5.4-hfxfr
             env:
               - name: HF_HUB_ENABLE_HF_TRANSFER
                 value: "1"

@@ -30,6 +30,17 @@ spec:
           MODEL_ID: "microsoft/Phi-3-mini-4k-instruct"
           TENSOR_PARALLELISM: "1"
   rayClusterConfig:
+    ## raycluster autoscaling config
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      upscalingMode: Default
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1000Mi"
+        requests:
+          cpu: "1"
+          memory: "1000Mi"
     headGroupSpec:
       rayStartParams:
         dashboard-host: '0.0.0.0'
@@ -63,7 +74,7 @@ spec:
             - containerPort: 8000
               name: serve
     workerGroupSpecs:
-    - replicas: 1
+    - replicas: 0
       minReplicas: 0
       maxReplicas: 4
       groupName: gpu-group
