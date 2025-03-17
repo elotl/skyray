@@ -1,4 +1,4 @@
-# Note: derived from: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/ai-ml/gke-ray/rayserve/llm/
+#r Note: derived from: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/ai-ml/gke-ray/rayserve/llm/
 
 apiVersion: ray.io/v1
 kind: RayService
@@ -11,11 +11,13 @@ spec:
     applications:
     - name: llm
       route_prefix: /
-      import_path:  luna-llm-serve.llm:build_app
+      import_path:  phi3models.llm:build_app
       args:
-        model: "microsoft/Phi-3-mini-4k-instruct"
-        tensor-parallel-size: "1"
-        dtype: "bfloat16"
+        model: "rubra-ai/Phi-3-mini-128k-instruct"
+        tensor-parallel-size: "4"
+        dtype: "float16"
+        max_model_len: "16384"
+        max_num_seqs: "2"
       deployments:
       - name: VLLMDeployment
         num_replicas: 1
@@ -23,11 +25,11 @@ spec:
           num_cpus: 1
           # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
       runtime_env:
-        working_dir: "https://github.com/elotl/skyray/archive/main.zip"
+        working_dir: "https://github.com/elotl/modelexpt/archive/main.zip"
         pip: ["vllm==0.5.4"]
         env_vars:
-          MODEL_ID: "microsoft/Phi-3-mini-4k-instruct"
-          TENSOR_PARALLELISM: "1"
+          MODEL_ID: "rubra-ai/Phi-3-mini-128k-instruct"
+          TENSOR_PARALLELISM: "4"
   rayClusterConfig:
     headGroupSpec:
       rayStartParams:
@@ -58,7 +60,7 @@ spec:
               name: serve
     workerGroupSpecs:
     - replicas: 1
-      minReplicas: 0
+      minReplicas: 1
       maxReplicas: 4
       groupName: gpu-group
       rayStartParams: {}
@@ -75,12 +77,12 @@ spec:
             resources:
               limits:
                 cpu: "8"
-                memory: "20Gi"
-                nvidia.com/gpu: "1"
+                memory: "30Gi"
+                nvidia.com/gpu: "4"
               requests:
                 cpu: "8"
-                memory: "20Gi"
-                nvidia.com/gpu: "1"
+                memory: "30Gi"
+                nvidia.com/gpu: "4"
           tolerations:
             - key: nvidia.com/gpu
               effect: NoSchedule
