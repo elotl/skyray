@@ -4,6 +4,7 @@ metadata:
   name: rayjob-sample
 spec:
   entrypoint: python /home/ray/samples/sample_code.py
+  shutdownAfterJobFinishes: true
   rayClusterSpec:
     rayVersion: '2.41.0'
     headGroupSpec:
@@ -14,7 +15,7 @@ spec:
           labels:
             elotl-luna: "true"
           annotations:
-            "node.elotl.co/instance-gpu-skus": "T4"
+            "node.elotl.co/instance-gpu-skus": "T4,P4,L4"
             "node.elotl.co/instance-offerings": "spot,on-demand"
         spec:
           tolerations:
@@ -34,13 +35,13 @@ spec:
                   name: client
               resources:
                 limits:
-                  nvidia.com/gpu: "4"
-                  cpu: "45"
-                  memory: "45Gi"
+                  nvidia.com/gpu: "2"
+                  cpu: "27"
+                  memory: "27Gi"
                 requests:
-                  nvidia.com/gpu: "4"
-                  cpu: "45"
-                  memory: "45Gi"
+                  nvidia.com/gpu: "2"
+                  cpu: "27"
+                  memory: "27Gi"
               volumeMounts:
                 - mountPath: /home/ray/samples
                   name: code-sample
@@ -116,7 +117,7 @@ data:
 
     predictions = ds.map_batches(
         ImageClassifier,
-        compute=ray.data.ActorPoolStrategy(size=4), # Change this number based on the number of GPUs in your cluster.
+        compute=ray.data.ActorPoolStrategy(size=2), # Change this number based on the number of GPUs in your cluster.
         num_gpus=1, # Specify 1 GPU per model replica.
         batch_size=BATCH_SIZE # Use the largest batch size that can fit on our GPUs
     )
