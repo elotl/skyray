@@ -15,8 +15,10 @@ spec:
           labels:
             elotl-luna: "true"
           annotations:
-            "node.elotl.co/instance-gpu-skus": "T4,P4,L4"
-            "node.elotl.co/instance-offerings": "spot,on-demand"
+            "node.elotl.co/instance-gpu-skus": "${RAY_CLUSTER_GPU_SKUS}"
+            "node.elotl.co/instance-offerings": "${BATCH_JOB_PRICE_CATEGORIES}"
+            "node.elotl.co/instance-max-gpus": "${RAY_CLUSTER_GPU_COUNT}"
+            "node.elotl.co/instance-max-cost": "${RAY_CLUSTER_MAX_NODE_COST}"
         spec:
           tolerations:
             - key: "kubernetes.azure.com/scalesetpriority"
@@ -35,13 +37,13 @@ spec:
                   name: client
               resources:
                 limits:
-                  nvidia.com/gpu: "2"
-                  cpu: "27"
-                  memory: "27Gi"
+                  nvidia.com/gpu: "${RAY_CLUSTER_GPU_COUNT}"
+                  cpu: "${RAY_CLUSTER_CPU_COUNT}"
+                  memory: "${RAY_CLUSTER_MEMORY_SIZE}"
                 requests:
-                  nvidia.com/gpu: "2"
-                  cpu: "27"
-                  memory: "27Gi"
+                  nvidia.com/gpu: "${RAY_CLUSTER_GPU_COUNT}"
+                  cpu: "${RAY_CLUSTER_CPU_COUNT}"
+                  memory: "${RAY_CLUSTER_MEMORY_SIZE}"
               volumeMounts:
                 - mountPath: /home/ray/samples
                   name: code-sample
@@ -59,7 +61,7 @@ spec:
       labels:
         elotl-luna: "true"
       annotations:
-        "node.elotl.co/instance-offerings": "spot,on-demand"
+        "node.elotl.co/instance-offerings": "${BATCH_JOB_PRICE_CATEGORIES}"
     spec:
       restartPolicy: Never
       tolerations:
@@ -117,7 +119,7 @@ data:
 
     predictions = ds.map_batches(
         ImageClassifier,
-        compute=ray.data.ActorPoolStrategy(size=2), # Change this number based on the number of GPUs in your cluster.
+        compute=ray.data.ActorPoolStrategy(size=${RAY_CLUSTER_GPU_COUNT}), # Change this number based on the number of GPUs in your cluster.
         num_gpus=1, # Specify 1 GPU per model replica.
         batch_size=BATCH_SIZE # Use the largest batch size that can fit on our GPUs
     )
