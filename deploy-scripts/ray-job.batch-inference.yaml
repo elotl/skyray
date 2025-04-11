@@ -17,7 +17,7 @@ spec:
           annotations:
             "node.elotl.co/instance-gpu-skus": "${RAY_CLUSTER_GPU_SKUS}"
             "node.elotl.co/instance-offerings": "${BATCH_JOB_PRICE_CATEGORIES}"
-            "node.elotl.co/instance-max-gpus": "${RAY_CLUSTER_GPU_COUNT}"
+            "node.elotl.co/instance-max-gpus": "${RAY_CLUSTER_MAX_GPU_COUNT}"
             "node.elotl.co/instance-max-cost": "${RAY_CLUSTER_MAX_NODE_COST}"
         spec:
           tolerations:
