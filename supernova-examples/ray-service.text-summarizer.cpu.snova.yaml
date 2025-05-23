@@ -19,6 +19,15 @@ spec:
   rayClusterConfig:
     headServiceAnnotations:
       service.cilium.io/global: "true"
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
     rayVersion: '2.9.0' # Should match the Ray version in the image of the containers
     ######################headGroupSpecs#################################
     # Ray head pod template.
@@ -64,8 +73,8 @@ spec:
     workerGroupSpecs:
     # The pod replicas in this group typed worker
     - replicas: ${NUM_REPLICAS}
-      minReplicas: 1
-      maxReplicas: 10
+      minReplicas: ${MIN_REPLICAS}
+      maxReplicas: ${MAX_REPLICAS}
       groupName: cpu-group
       rayStartParams: {}
       # Pod template
