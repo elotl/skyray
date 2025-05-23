@@ -13,7 +13,7 @@ spec:
           working_dir: "https://github.com/ray-project/serve_config_examples/archive/refs/heads/master.zip"
         deployments:
           - name: SummaryDeployment
-            num_replicas: 2
+            num_replicas: ${NUM_REPLICAS}
             max_replicas_per_node: 1
             ray_actor_options: {num_gpus: 0, num_cpus: ${RAY_WORKER_CPU_COUNT}}
   rayClusterConfig:
@@ -61,7 +61,7 @@ spec:
               emptyDir: {}
     workerGroupSpecs:
     # The pod replicas in this group typed worker
-    - replicas: 2
+    - replicas: ${NUM_REPLICAS}
       minReplicas: 1
       maxReplicas: 10
       groupName: cpu-group
