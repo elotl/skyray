@@ -101,7 +101,7 @@ kind: ConfigMap
 metadata:
   name: ray-job-code-sample
   labels:
-    app: rayclustersetup
+    app.kubernetes.io/instance: rayjob
 data:
   sample_code.py: |
     import ray
