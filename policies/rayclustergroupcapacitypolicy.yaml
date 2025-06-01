@@ -1,0 +1,14 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: raycluster-group-spread-policy-${RAYCLUSTER_NAMESPACE}
+spec:
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${RAYCLUSTER_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: raycluster
+  groupBy:
+    labelKey: app.kubernetes.io/instance
