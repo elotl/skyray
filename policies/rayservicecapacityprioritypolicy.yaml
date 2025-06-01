@@ -1,0 +1,21 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: rayservice-spread-priority-policy-${RAYCLUSTER_NAMESPACE}
+spec:
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${RAYCLUSTER_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rayservice
+  groupBy:
+    labelKey: app.kubernetes.io/instance
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - cluster2
+          - cluster1
