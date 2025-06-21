@@ -37,6 +37,7 @@ spec:
       # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
       rayStartParams:
         dashboard-host: '0.0.0.0'
+        num-cpus: "0"
       # Pod template
       template:
         metadata:
