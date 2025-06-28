@@ -17,5 +17,5 @@ spec:
       - key: kubernetes.io/metadata.name
         operator: In
         values:
-          - cluster2
-          - cluster1
+          - on-prem
+          - cloud
