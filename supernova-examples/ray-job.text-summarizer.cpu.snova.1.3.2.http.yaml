@@ -1,0 +1,121 @@
+apiVersion: ray.io/v1
+kind: RayJob
+metadata:
+  name: text-summarizer
+  labels:
+    app.kubernetes.io/instance: rayjob
+spec:
+  submissionMode: "HTTPMode"
+  entrypoint: python /home/ray/samples/sample_code.py
+  shutdownAfterJobFinishes: false
+  rayClusterSpec:
+    headServiceAnnotations:
+      service.cilium.io/global: "true"
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+    rayVersion: '2.41.0' # Should match the Ray version in the image of the containers
+    ######################headGroupSpecs#################################
+    # Ray head pod template.
+    headGroupSpec:
+      serviceType: NodePort
+      # The `rayStartParams` are used to configure the `ray start` command.
+      # See https://github.com/ray-project/kuberay/blob/master/docs/guidance/rayStartParams.md for the default settings of `rayStartParams` in KubeRay.
+      # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+      # Pod template
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+          annotations:
+            node.elotl.co/instance-offerings: "on-demand"
+        spec:
+          containers:
+          - name: ray-head
+            image: rayproject/ray-ml:2.41.0.deprecated
+            volumeMounts:
+              - mountPath: /tmp/ray
+                name: ray-logs
+              - mountPath: /home/ray/samples
+                name: code-sample
+            resources:
+              limits:
+                cpu: "${RAY_HEAD_CPU_COUNT}"
+                memory: "${RAY_HEAD_MEMORY_SIZE}"
+              requests:
+                cpu: "${RAY_HEAD_CPU_COUNT}"
+                memory: "${RAY_HEAD_MEMORY_SIZE}"
+          volumes:
+            - name: ray-logs
+              emptyDir: {}
+            - name: code-sample
+              configMap:
+                name: ray-job-code-sample
+                items:
+                  - key: sample_code.py
+                    path: sample_code.py
+    workerGroupSpecs:
+    # The pod replicas in this group typed worker
+    - replicas: ${NUM_REPLICAS}
+      minReplicas: ${MIN_REPLICAS}
+      maxReplicas: ${MAX_REPLICAS}
+      groupName: cpu-group
+      rayStartParams: {}
+      # Pod template
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+        spec:
+          containers:
+          - name: ray-worker
+            image: rayproject/ray-ml:2.41.0.deprecated
+            resources:
+              limits:
+                cpu: "${RAY_WORKER_CPU_COUNT}"
+                memory: "${RAY_WORKER_MEMORY_SIZE}"
+              requests:
+                cpu: "${RAY_WORKER_CPU_COUNT}"
+                memory: "${RAY_WORKER_MEMORY_SIZE}"
+
+  # SubmitterPodTemplate is the template for the pod that will run the `ray job submit` command against the RayCluster.
+  # If SubmitterPodTemplate is specified, the first container is assumed to be the submitter container.
+  submitterPodTemplate:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: my-custom-rayjob-submitter-pod
+          image: rayproject/ray-ml:2.41.0.deprecated
+          resources:
+            requests:
+              cpu: "1"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+          command:
+            - sleep
+            - "infinity"
+
+######################Ray code sample#################################
+# This sample is mounted into the container and executed to show the Ray job at work
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ray-job-code-sample
+  labels:
+    app.kubernetes.io/instance: rayjob
+data:
+  sample_code.py: |
+    import ray
+
+    print("Hello, world")
