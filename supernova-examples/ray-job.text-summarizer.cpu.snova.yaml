@@ -30,11 +30,6 @@ spec:
         dashboard-host: '0.0.0.0'
       # Pod template
       template:
-        metadata:
-          labels:
-            elotl-luna: "true"
-          annotations:
-            node.elotl.co/instance-offerings: "on-demand"
         spec:
           containers:
           - name: ray-head
@@ -78,9 +73,6 @@ spec:
       rayStartParams: {}
       # Pod template
       template:
-        metadata:
-          labels:
-            elotl-luna: "true"
         spec:
           containers:
           - name: ray-worker

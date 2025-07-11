@@ -1,13 +1,10 @@
 apiVersion: ray.io/v1
-kind: RayJob
+kind: RayCluster
 metadata:
-  name: text-summarizer
+  name: text-summarizer-cluster
   labels:
-    app.kubernetes.io/instance: rayjob
+    app.kubernetes.io/instance: raycluster
 spec:
-  entrypoint: python /home/ray/samples/sample_code.py
-  shutdownAfterJobFinishes: false
-  rayClusterSpec:
     headServiceAnnotations:
       service.cilium.io/global: "true"
     enableInTreeAutoscaling: true
@@ -20,8 +17,6 @@ spec:
           cpu: "500m"
           memory: "512Mi"
     rayVersion: '2.41.0' # Should match the Ray version in the image of the containers
-    ######################headGroupSpecs#################################
-    # Ray head pod template.
     headGroupSpec:
       serviceType: NodePort
       # The `rayStartParams` are used to configure the `ray start` command.
@@ -38,8 +33,6 @@ spec:
             volumeMounts:
               - mountPath: /tmp/ray
                 name: ray-logs
-              - mountPath: /home/ray/samples
-                name: code-sample
             resources:
               limits:
                 cpu: "${RAY_HEAD_CPU_COUNT}"
@@ -50,12 +43,6 @@ spec:
           volumes:
             - name: ray-logs
               emptyDir: {}
-            - name: code-sample
-              configMap:
-                name: ray-job-code-sample
-                items:
-                  - key: sample_code.py
-                    path: sample_code.py
     workerGroupSpecs:
     # The pod replicas in this group typed worker
     - replicas: ${NUM_REPLICAS}
@@ -76,18 +63,3 @@ spec:
               requests:
                 cpu: "${RAY_WORKER_CPU_COUNT}"
                 memory: "${RAY_WORKER_MEMORY_SIZE}"
-
-######################Ray code sample#################################
-# This sample is mounted into the container and executed to show the Ray job at work
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ray-job-code-sample
-  labels:
-    app.kubernetes.io/instance: rayjob
-data:
-  sample_code.py: |
-    import ray
-
-    print("Hello, world")
