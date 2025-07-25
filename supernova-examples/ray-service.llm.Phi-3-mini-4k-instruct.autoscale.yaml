@@ -1,0 +1,106 @@
+# Note: derived from: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/ai-ml/gke-ray/rayserve/llm/
+
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: llm-model-serve
+  labels:
+    app.kubernetes.io/instance: rayservice
+spec:
+  serveConfigV2: |
+    applications:
+    - name: llm
+      route_prefix: /
+      import_path:  luna-llm-serve.llm:build_app
+      args:
+        model: "microsoft/Phi-3-mini-4k-instruct"
+        tensor-parallel-size: "1"
+        dtype: "bfloat16"
+        gpu-memory-utilization: "0.7"
+      deployments:
+      - name: VLLMDeployment
+        num_replicas: auto
+        max_ongoing_requests: 2
+        autoscaling_config:
+          target_ongoing_requests: 1
+          min_replicas: 2
+          max_replicas: 4
+        ray_actor_options:
+          num_cpus: 1
+          # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
+      runtime_env:
+        working_dir: "https://github.com/elotl/skyray/archive/main.zip"
+        pip: ["vllm==0.5.4"]
+        env_vars:
+          MODEL_ID: "microsoft/Phi-3-mini-4k-instruct"
+          TENSOR_PARALLELISM: "1"
+  rayClusterConfig:
+    ## raycluster autoscaling config
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      upscalingMode: Default
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1000Mi"
+        requests:
+          cpu: "1"
+          memory: "1000Mi"
+    headGroupSpec:
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+        num-cpus: "0"
+        num-gpus: "0"
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+        spec:
+          containers:
+          - name: ray-head
+            image: rayproject/ray-ml:2.33.0.914af0-py311
+            resources:
+              limits:
+                cpu: "2"
+                memory: "8Gi"
+              requests:
+                cpu: "2"
+                memory: "8Gi"
+            ports:
+            - containerPort: 6379
+              name: gcs-server
+            - containerPort: 8265
+              name: dashboard
+            - containerPort: 10001
+              name: client
+            - containerPort: 8000
+              name: serve
+    workerGroupSpecs:
+    - replicas: 0
+      minReplicas: 0
+      maxReplicas: 4
+      groupName: gpu-group
+      rayStartParams: {}
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+          annotations:
+            node.elotl.co/instance-gpu-skus: "L4,A10G,A10,L40S"
+        spec:
+          containers:
+          - name: llm
+            image: rayproject/ray-ml:2.33.0.914af0-py311
+            resources:
+              limits:
+                cpu: "8"
+                memory: "20Gi"
+                nvidia.com/gpu: "1"
+              requests:
+                cpu: "8"
+                memory: "20Gi"
+                nvidia.com/gpu: "1"
+          tolerations:
+            - key: nvidia.com/gpu
+              effect: NoSchedule
+              operator: Exists
