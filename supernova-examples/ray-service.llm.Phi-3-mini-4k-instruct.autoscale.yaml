@@ -35,6 +35,8 @@ spec:
           MODEL_ID: "microsoft/Phi-3-mini-4k-instruct"
           TENSOR_PARALLELISM: "1"
   rayClusterConfig:
+    headServiceAnnotations:
+      service.cilium.io/global: "true"
     ## raycluster autoscaling config
     enableInTreeAutoscaling: true
     autoscalerOptions:
@@ -47,6 +49,7 @@ spec:
           cpu: "1"
           memory: "1000Mi"
     headGroupSpec:
+      serviceType: NodePort
       rayStartParams:
         dashboard-host: '0.0.0.0'
         num-cpus: "0"
