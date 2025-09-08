@@ -18,8 +18,8 @@ spec:
             dtype: bfloat16
           deployment_config:
             autoscaling_config:
-              min_replicas: 2
-              max_replicas: 2
+              min_replicas: 4
+              max_replicas: 4
   rayClusterConfig:
     rayVersion: "2.46.0"
     headGroupSpec:
@@ -79,8 +79,8 @@ spec:
               limits:
                 cpu: 16
                 memory: 16Gi
-                nvidia.com/gpu: "1"
+                nvidia.com/gpu: "2"
               requests:
                 cpu: 16
                 memory: 16Gi
-                nvidia.com/gpu: "1"
+                nvidia.com/gpu: "2"

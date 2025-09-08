@@ -18,8 +18,8 @@ spec:
             dtype: bfloat16
           deployment_config:
             autoscaling_config:
-              min_replicas: 2
-              max_replicas: 2
+              min_replicas: 4
+              max_replicas: 4
   rayClusterConfig:
     rayVersion: "2.46.0"
     headGroupSpec:
@@ -31,6 +31,8 @@ spec:
           labels:
             elotl-luna: "true"
         spec:
+          schedulingGates:
+          - name: "nodecostestimate"
           containers:
           - name: ray-head
             image: rayproject/ray-llm:2.46.0-py311-cu124
@@ -72,6 +74,8 @@ spec:
           annotations:
             node.elotl.co/instance-gpu-skus: "L4,A10G,A10,L40S"
         spec:
+          schedulingGates:
+          - name: "nodecostestimate"
           containers:
           - name: ray-worker
             image: rayproject/ray-llm:2.46.0-py311-cu124
@@ -79,8 +83,8 @@ spec:
               limits:
                 cpu: 16
                 memory: 16Gi
-                nvidia.com/gpu: "1"
+                nvidia.com/gpu: "2"
               requests:
                 cpu: 16
                 memory: 16Gi
-                nvidia.com/gpu: "1"
+                nvidia.com/gpu: "2"

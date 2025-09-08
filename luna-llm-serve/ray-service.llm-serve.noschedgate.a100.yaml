@@ -70,7 +70,7 @@ spec:
           labels:
             elotl-luna: "true"
           annotations:
-            node.elotl.co/instance-gpu-skus: "L4,A10G,A10,L40S"
+            node.elotl.co/instance-gpu-skus: "A100"
         spec:
           containers:
           - name: ray-worker
