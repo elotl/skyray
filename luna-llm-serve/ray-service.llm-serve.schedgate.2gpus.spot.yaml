@@ -79,6 +79,10 @@ spec:
         spec:
           schedulingGates:
           - name: "nodecostestimate"
+          tolerations:
+          - key: nvidia.com/gpu
+            effect: NoSchedule
+            operator: Exists
           containers:
           - name: ray-worker
             image: rayproject/ray-llm:2.46.0-py311-cu124
