@@ -64,7 +64,7 @@ spec:
       numOfHosts: 1
       groupName: gpu-group
       rayStartParams:
-        num-gpus: "1"
+        num-gpus: "2"
       template:
         metadata:
           labels:
