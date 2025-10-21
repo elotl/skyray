@@ -55,6 +55,7 @@ printf '%s\n' "${AUTOSCALED_CLUSTER_LIST[@]}"
 HIGH_COST=65535
 for CONTEXT_NAME in ${AUTOSCALED_CLUSTER_LIST[@]}; do
   totalcost=0
+  COST_LIST=()
   echo " "
   POD_LIST=$(kubectl get pods -n ${WORKLOAD_NAMESPACE} --context ${CONTEXT_NAME} \
     -o jsonpath='{range .items[?(@.spec.schedulingGates[0].name == "nodecostestimate")]}{.metadata.name}{"\n"}{end}')
@@ -67,15 +68,23 @@ for CONTEXT_NAME in ${AUTOSCALED_CLUSTER_LIST[@]}; do
       break
     fi
     if [[ "$cost" == "Estimated cost $"* ]]; then
-      costcut=$(echo $cost | cut -c 17-24)
-      echo $costcut
-      totalcost=$(python -c "print($totalcost + $costcut)")
+      COST_LIST+=("$cost")
     else
       echo "no nodecostestimate event found"
       totalcost=${HIGH_COST}
       break
     fi
   done
+  if [[ $totalcost == 0 ]]; then
+     readarray -td '' COST_LIST_SORTED < <(printf '%s\0' "${COST_LIST[@]}" | sort -z)
+     readarray COST_LIST_SORTED_UNIQ < <(printf '%s\n' "${COST_LIST_SORTED[@]}" | uniq)
+     for cost in "${COST_LIST_SORTED_UNIQ[@]}"; do
+       costcut=$(echo $cost | cut -c 17-24)
+       costcnt=$(echo "$cost" | awk -F'; ' '/estimated node count/ {print $2}' | cut -d' ' -f4)
+       echo "$costcut x $costcnt"
+       totalcost=$(python -c "print($totalcost + ($costcut * $costcnt))")
+     done
+  fi
   echo $CONTEXT_NAME $totalcost
   CLUSTER_COST[$CONTEXT_NAME]=$totalcost
 done
