@@ -1,0 +1,82 @@
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: text-summarizer
+  labels:
+    app.kubernetes.io/instance: rayservice
+spec:
+  serveConfigV2: |
+    applications:
+      - name: text_summarizer
+        import_path: text_summarizer.text_summarizer:deployment
+        runtime_env:
+          working_dir: "https://github.com/ray-project/serve_config_examples/archive/refs/heads/master.zip"
+        deployments:
+          - name: SummaryDeployment
+            num_replicas: ${NUM_REPLICAS}
+            max_replicas_per_node: 1
+            ray_actor_options: {num_gpus: 0, num_cpus: ${RAY_WORKER_CPU_COUNT}}
+  rayClusterConfig:
+    headServiceAnnotations:
+      service.cilium.io/global: "true"
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+    rayVersion: '2.46.0' # Should match the Ray version in the image of the containers
+    ######################headGroupSpecs#################################
+    # Ray head pod template.
+    headGroupSpec:
+      serviceType: NodePort
+      # The `rayStartParams` are used to configure the `ray start` command.
+      # See https://github.com/ray-project/kuberay/blob/master/docs/guidance/rayStartParams.md for the default settings of `rayStartParams` in KubeRay.
+      # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
+      rayStartParams:
+        dashboard-host: '0.0.0.0'
+        num-cpus: "0"
+        num-gpus: "0"
+      # Pod template
+      template:
+        spec:
+          containers:
+          - name: ray-head
+            image: rayproject/ray-ml:2.46.0.0e19ea-py39-cpu
+            volumeMounts:
+              - mountPath: /tmp/ray
+                name: ray-logs
+            resources:
+              limits:
+                cpu: "${RAY_HEAD_CPU_COUNT}"
+                memory: "${RAY_HEAD_MEMORY_SIZE}"
+              requests:
+                cpu: "${RAY_HEAD_CPU_COUNT}"
+                memory: "${RAY_HEAD_MEMORY_SIZE}"
+          volumes:
+            - name: ray-logs
+              emptyDir: {}
+    workerGroupSpecs:
+    # The pod replicas in this group typed worker
+    - replicas: ${NUM_REPLICAS}
+      minReplicas: ${MIN_REPLICAS}
+      maxReplicas: ${MAX_REPLICAS}
+      groupName: cpu-group
+      rayStartParams:
+        num-gpus: "0"
+      # Pod template
+      template:
+        spec:
+          containers:
+          - name: ray-worker
+            image: rayproject/ray-ml:2.46.0.0e19ea-py39-cpu
+            resources:
+              limits:
+                cpu: "${RAY_WORKER_CPU_COUNT}"
+                memory: "${RAY_WORKER_MEMORY_SIZE}"
+              requests:
+                cpu: "${RAY_WORKER_CPU_COUNT}"
+                memory: "${RAY_WORKER_MEMORY_SIZE}"

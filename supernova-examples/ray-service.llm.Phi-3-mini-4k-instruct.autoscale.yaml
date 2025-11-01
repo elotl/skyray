@@ -1,40 +1,27 @@
-# Note: derived from: https://github.com/GoogleCloudPlatform/kubernetes-engine-samples/ai-ml/gke-ray/rayserve/llm/
-
 apiVersion: ray.io/v1
 kind: RayService
 metadata:
-  name: llm-model-serve
+  name: ray-serve-llm
   labels:
     app.kubernetes.io/instance: rayservice
 spec:
   serveConfigV2: |
     applications:
-    - name: llm
-      route_prefix: /
-      import_path:  luna-llm-serve.llm:build_app
+    - name: llms
+      import_path: ray.serve.llm:build_openai_app
+      route_prefix: "/"
       args:
-        model: "microsoft/Phi-3-mini-4k-instruct"
-        tensor-parallel-size: "1"
-        dtype: "bfloat16"
-        gpu-memory-utilization: "0.7"
-      deployments:
-      - name: VLLMDeployment
-        num_replicas: auto
-        max_ongoing_requests: 2
-        autoscaling_config:
-          target_ongoing_requests: 1
-          min_replicas: 2
-          max_replicas: 4
-        ray_actor_options:
-          num_cpus: 1
-          # NOTE: num_gpus is set automatically based on TENSOR_PARALLELISM
-      runtime_env:
-        working_dir: "https://github.com/elotl/skyray/archive/main.zip"
-        pip: ["vllm==0.5.4"]
-        env_vars:
-          MODEL_ID: "microsoft/Phi-3-mini-4k-instruct"
-          TENSOR_PARALLELISM: "1"
+        llm_configs:
+        - model_loading_config:
+            model_id: microsoft/Phi-3-mini-4k-instruct
+          engine_kwargs:
+            dtype: bfloat16
+          deployment_config:
+            autoscaling_config:
+              min_replicas: 2
+              max_replicas: 4
   rayClusterConfig:
+    rayVersion: "2.46.0"
     headServiceAnnotations:
       service.cilium.io/global: "true"
     ## raycluster autoscaling config
@@ -61,7 +48,7 @@ spec:
         spec:
           containers:
           - name: ray-head
-            image: rayproject/ray-ml:2.33.0.914af0-py311
+            image: rayproject/ray-llm:2.46.0-py311-cu124
             resources:
               limits:
                 cpu: "2"
@@ -71,19 +58,28 @@ spec:
                 memory: "8Gi"
             ports:
             - containerPort: 6379
-              name: gcs-server
+              name: gcs
+              protocol: TCP
             - containerPort: 8265
               name: dashboard
+              protocol: TCP
             - containerPort: 10001
               name: client
+              protocol: TCP
             - containerPort: 8000
               name: serve
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
     workerGroupSpecs:
     - replicas: 0
       minReplicas: 0
       maxReplicas: 4
+      numOfHosts: 1
       groupName: gpu-group
-      rayStartParams: {}
+      rayStartParams:
+        num-gpus: "1"
       template:
         metadata:
           labels:
@@ -92,8 +88,8 @@ spec:
             node.elotl.co/instance-gpu-skus: "L4,A10G,A10,L40S"
         spec:
           containers:
-          - name: llm
-            image: rayproject/ray-ml:2.33.0.914af0-py311
+          - name: ray-worker
+            image: rayproject/ray-llm:2.46.0-py311-cu124
             resources:
               limits:
                 cpu: "8"
