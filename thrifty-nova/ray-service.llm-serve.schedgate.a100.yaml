@@ -1,0 +1,109 @@
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: ray-serve-llm
+  labels:
+    app.kubernetes.io/instance: rayservice
+spec:
+  serveConfigV2: |
+    applications:
+    - name: llms
+      import_path: ray.serve.llm:build_openai_app
+      route_prefix: "/"
+      args:
+        llm_configs:
+        - model_loading_config:
+            model_id: microsoft/Phi-3-mini-4k-instruct
+          engine_kwargs:
+            dtype: bfloat16
+          deployment_config:
+            autoscaling_config:
+              min_replicas: 2
+              max_replicas: 2
+  rayClusterConfig:
+    rayVersion: "2.46.0"
+    headGroupSpec:
+      rayStartParams:
+        num-cpus: "0"
+        num-gpus: "0"
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+        spec:
+          schedulingGates:
+          - name: "nodecostestimate"
+          containers:
+          - name: ray-head
+            image: rayproject/ray-llm:2.46.0-py311-cu124
+            ports:
+            - containerPort: 8000
+              name: serve
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+            - containerPort: 6379
+              name: gcs
+              protocol: TCP
+            - containerPort: 8265
+              name: dashboard
+              protocol: TCP
+            - containerPort: 10001
+              name: client
+              protocol: TCP
+            resources:
+              limits:
+                cpu: 2
+                memory: 16Gi
+              requests:
+                cpu: 2
+                memory: 16Gi
+    workerGroupSpecs:
+    - replicas: 2
+      minReplicas: 2
+      maxReplicas: 2
+      numOfHosts: 1
+      groupName: gpu-group
+      rayStartParams:
+        num-gpus: "1"
+      template:
+        metadata:
+          labels:
+            elotl-luna: "true"
+          annotations:
+            node.elotl.co/instance-gpu-skus: "A100"
+        spec:
+          schedulingGates:
+          - name: "nodecostestimate"
+          tolerations:
+          - key: nvidia.com/gpu
+            effect: NoSchedule
+            operator: Exists
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node.elotl.co/created-by
+                    operator: In
+                    values:
+                    - luna
+                - matchExpressions:
+                  - key: cloud.google.com/gke-accelerator
+                    operator: In
+                    values:
+                    - nvidia-a100-40gb
+                    - nvidia-a100-80gb
+          containers:
+          - name: ray-worker
+            image: rayproject/ray-llm:2.46.0-py311-cu124
+            resources:
+              limits:
+                cpu: 16
+                memory: 16Gi
+                nvidia.com/gpu: "1"
+              requests:
+                cpu: 16
+                memory: 16Gi
+                nvidia.com/gpu: "1"
