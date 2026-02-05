@@ -1,7 +1,7 @@
 apiVersion: policy.elotl.co/v1alpha1
 kind: SchedulePolicy
 metadata:
-  name: kr-policy
+  name: app-policy
 spec:
   spreadConstraints:
     spreadMode: Duplicate

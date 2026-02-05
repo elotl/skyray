@@ -9,6 +9,7 @@ spec:
         operator: In
         values:
           - onprem
+          - cloud
   namespaceSelector:
     matchLabels:
       kubernetes.io/metadata.name: ${APP_NAMESPACE}
