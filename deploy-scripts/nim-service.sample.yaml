@@ -1,0 +1,26 @@
+apiVersion: apps.nvidia.com/v1alpha1
+kind: NIMService
+metadata:
+  name: phi-3-mini-4k-instruct
+spec:
+  image:
+    repository: nvcr.io/nim/microsoft/phi-3-mini-4k-instruct
+    tag: 1.2.3
+    pullPolicy: IfNotPresent
+    pullSecrets:
+      - ngc-secret
+  authSecret: ngc-api-secret
+  replicas: 1
+  storage:
+    pvc:
+      create: true
+      storageClass: azurefile-csi
+      size: 50Gi
+      volumeAccessMode: ReadWriteMany
+  resources:
+    limits:
+      nvidia.com/gpu: 1
+  expose:
+    service:
+      type: ClusterIP
+      port: 8000

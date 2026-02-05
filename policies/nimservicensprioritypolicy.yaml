@@ -1,0 +1,20 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: nimservice
+  groupBy:
+    labelKey: app.kubernetes.io/instance
