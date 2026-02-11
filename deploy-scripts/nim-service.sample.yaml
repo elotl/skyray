@@ -10,7 +10,7 @@ spec:
     pullSecrets:
       - ngc-secret
   authSecret: ngc-api-secret
-  replicas: 1
+  replicas: ${NUM_REPLICAS}
   storage:
     pvc:
       create: true
@@ -24,3 +24,5 @@ spec:
     service:
       type: ClusterIP
       port: 8000
+      annotations:
+        service.cilium.io/global: "true"
