@@ -16,6 +16,6 @@ spec:
   resourceSelectors:
     labelSelectors:
     - matchLabels:
-        app.kubernetes.io/instance: nimservice
+        app.kubernetes.io/instance: ${APP_INSTANCE_NAME}
   groupBy:
     labelKey: app.kubernetes.io/instance
