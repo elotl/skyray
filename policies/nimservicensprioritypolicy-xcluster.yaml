@@ -1,0 +1,131 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}-rag-llm
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+          - cloud
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rag-llm
+  groupBy:
+    labelKey: app.kubernetes.io/instance
+---
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}-rag-page
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+          - cloud
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rag-page
+  groupBy:
+    labelKey: app.kubernetes.io/instance
+---
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}-rag-graphic
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+          - cloud
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rag-graphic
+  groupBy:
+    labelKey: app.kubernetes.io/instance
+---
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}-rag-table
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+          - cloud
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rag-table
+  groupBy:
+    labelKey: app.kubernetes.io/instance
+---
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}-rag-embedding
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+          - cloud
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rag-embedding
+  groupBy:
+    labelKey: app.kubernetes.io/instance
+---
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: nimservice-policy-${APP_NAMESPACE}-rag-ranking
+spec:
+  orderedClusterSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - onprem
+          - cloud
+  namespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: ${APP_NAMESPACE}
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: rag-ranking
+  groupBy:
+    labelKey: app.kubernetes.io/instance
