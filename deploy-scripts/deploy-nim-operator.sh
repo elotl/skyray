@@ -1,4 +1,4 @@
-helm upgrade --install nim-operator nvidia/k8s-nim-operator --version=3.0.2 $1
+helm install nim-operator nvidia/k8s-nim-operator --set operator.upgradeCRD=false --version=3.0.2 $1
 #
 kubectl label crd nemocustomizers.apps.nvidia.com  app.kubernetes.io/component=nim-operator
 kubectl label crd nemodatastores.apps.nvidia.com   app.kubernetes.io/component=nim-operator
