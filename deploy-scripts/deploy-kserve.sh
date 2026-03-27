@@ -5,6 +5,10 @@
 # resources. On workload clusters where cert-manager IS running, you may need to create
 # KServe TLS certs separately if webhook validation requires them.
 #
+# Clean up any orphaned cert-manager webhook configs that block API calls on Nova
+kubectl delete validatingwebhookconfiguration cert-manager-webhook 2>/dev/null || true
+kubectl delete mutatingwebhookconfiguration cert-manager-webhook 2>/dev/null || true
+#
 helm install kserve-crd oci://ghcr.io/kserve/charts/kserve-crd --version v0.17.0-rc0 $1
 helm install kserve oci://ghcr.io/kserve/charts/kserve --version v0.17.0-rc0 \
  --set kserve.controller.deploymentMode=Standard \
@@ -19,6 +23,6 @@ kubectl label crd inferenceservices.serving.kserve.io        app.kubernetes.io/c
 kubectl label crd servingruntimes.serving.kserve.io          app.kubernetes.io/component=kserve
 kubectl label crd trainedmodels.serving.kserve.io            app.kubernetes.io/component=kserve
 #
-# Label operator resources in kserve namespace that may not already have app.kubernetes.io/name=kserve
-kubectl label cm/inferenceservice-config  -n kserve app.kubernetes.io/name=kserve
-kubectl label sa/kserve-controller-manager -n kserve app.kubernetes.io/name=kserve
+# Label operator resources in kserve namespace (--overwrite in case helm already set a different value)
+kubectl label cm/inferenceservice-config  -n kserve app.kubernetes.io/name=kserve --overwrite
+kubectl label sa/kserve-controller-manager -n kserve app.kubernetes.io/name=kserve --overwrite
