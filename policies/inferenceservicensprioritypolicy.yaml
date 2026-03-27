@@ -3,13 +3,16 @@ kind: SchedulePolicy
 metadata:
   name: inferenceservice-policy-${APP_NAMESPACE}
 spec:
-  orderedClusterSelector:
-    matchExpressions:
-      - key: kubernetes.io/metadata.name
-        operator: In
-        values:
-          - onprem
-          - cloud
+  clusterSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: kind-workload-2
+  #orderedClusterSelector:
+  #  matchExpressions:
+  #    - key: kubernetes.io/metadata.name
+  #      operator: In
+  #      values:
+  #        - onprem
+  #        - cloud
   namespaceSelector:
     matchLabels:
       kubernetes.io/metadata.name: ${APP_NAMESPACE}

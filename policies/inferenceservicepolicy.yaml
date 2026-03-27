@@ -5,7 +5,10 @@ metadata:
 spec:
   clusterSelector:
     matchLabels:
-      nova.elotl.co/cluster.region: "us-west-2"
+      kubernetes.io/metadata.name: kind-workload-2
+  #clusterSelector:
+  #  matchLabels:
+  #    nova.elotl.co/cluster.region: "us-west-2"
   namespaceSelector:
     matchExpressions:
     - key: kubernetes.io/metadata.name
