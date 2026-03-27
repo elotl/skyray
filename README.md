@@ -10,10 +10,17 @@ Install in this order against the Nova control plane:
 ### 1. Prerequisites
 
 - **Nova** control plane and workload clusters must be set up and running
-- **cert-manager** must be installed on the workload clusters (required by KServe webhooks)
+- **cert-manager** must be installed on the **workload clusters** (required by KServe webhooks)
+
+> **Note:** Because Nova cannot run pods:
+> The deploy script installs only cert-manager **CRDs** on the Nova control plane (so helm
+> can create Certificate/Issuer resources). Full cert-manager must already be running on
+> the workload clusters where KServe pods will actually execute.
+
+Install cert-manager **directly** on each workload cluster (not through the Nova control plane):
 
 ```bash
-➜ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.20.0/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
 ```
 
 ### 2. Apply Nova Spread Policies
@@ -38,7 +45,9 @@ kubectl apply -f deploy-scripts/kservenamespace.yaml
 bash deploy-scripts/deploy-kserve.sh
 ```
 
-This installs the `kserve-crd` and `kserve` helm charts, then labels CRDs and operator resources so the spread policies pick them up.
+This installs cert-manager CRDs (so helm can create Certificate/Issuer resources on the Nova control plane),
+then installs the `kserve-crd` and `kserve` helm charts, and labels CRDs and operator resources so the
+spread policies pick them up.
 
 ### 5. Apply InferenceService Placement Policy
 
@@ -79,8 +88,8 @@ bash deploy-scripts/undeploy-kserve.sh
 
 | File | Purpose |
 |------|---------|
-| `deploy-scripts/deploy-kserve.sh` | Install KServe CRDs + operator, label resources for Nova |
-| `deploy-scripts/undeploy-kserve.sh` | Uninstall KServe and delete CRDs |
+| `deploy-scripts/deploy-kserve.sh` | Install cert-manager CRDs + KServe CRDs + operator, label resources for Nova |
+| `deploy-scripts/undeploy-kserve.sh` | Uninstall KServe, delete KServe CRDs and cert-manager CRDs |
 | `deploy-scripts/kservenamespace.yaml` | KServe namespace with `app: kserve` label |
 | `deploy-scripts/deploy-inferenceservice.sh` | Deploy and label an InferenceService CR |
 | `deploy-scripts/inference-service.sample.yaml` | Sample InferenceService template |
