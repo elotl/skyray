@@ -1,12 +1,14 @@
 # Nova is a K8s API that places workloads on other clusters — it cannot run pods.
-# We only install cert-manager CRDs here so helm can create Certificate/Issuer resources.
+# Disable cert-manager integration since Nova cannot run cert-manager webhooks.
 # Full cert-manager must already be running on the workload clusters.
-#
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml
+# NOTE: Since certManager.enabled=false, the helm chart won't render Certificate/Issuer
+# resources. On workload clusters where cert-manager IS running, you may need to create
+# KServe TLS certs separately if webhook validation requires them.
 #
 helm install kserve-crd oci://ghcr.io/kserve/charts/kserve-crd --version v0.17.0-rc0 $1
 helm install kserve oci://ghcr.io/kserve/charts/kserve --version v0.17.0-rc0 \
  --set kserve.controller.deploymentMode=Standard \
+ --set kserve.certManager.enabled=false \
  -n kserve $1
 #
 # Label CRDs so Nova can duplicate them to all workload clusters
