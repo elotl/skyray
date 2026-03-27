@@ -1,0 +1,12 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: ${INFERENCE_SERVICE_NAME}
+  labels:
+    app.kubernetes.io/instance: inferenceservice
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: sklearn
+      storageUri: gs://kfserving-examples/models/sklearn/1.0/model
