@@ -1,7 +1,7 @@
 # Prerequisites: cert-manager must be installed (required by KServe webhooks)
 #
-helm install kserve-crd oci://ghcr.io/kserve/charts/kserve-crd --version v0.17.0 $1
-helm install kserve oci://ghcr.io/kserve/charts/kserve --version v0.17.0 \
+helm install kserve-crd oci://ghcr.io/kserve/charts/kserve-crd --version v0.17.0-rc0 $1
+helm install kserve oci://ghcr.io/kserve/charts/kserve --version v0.17.0-rc0 \
  --set kserve.controller.deploymentMode=Standard \
  -n kserve $1
 #
