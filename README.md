@@ -64,11 +64,12 @@ kubectl apply -f policies/inferenceservicepolicy.yaml
 ### 6. Deploy an InferenceService
 
 ```bash
-export SKYRAY_PATH=$(pwd)
 export APP_NAMESPACE=default
 export INFERENCE_SERVICE_NAME=my-model
 bash deploy-scripts/deploy-inferenceservice.sh
 ```
+
+> No need to set `SKYRAY_PATH` — the script resolves paths relative to its own location.
 
 Or apply the sample directly:
 

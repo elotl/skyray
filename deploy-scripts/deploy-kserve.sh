@@ -32,6 +32,17 @@ helm install kserve oci://ghcr.io/kserve/charts/kserve --version v0.17.0-rc0 \
  --set kserve.certManager.enabled=false \
  -n kserve $1
 #
+# Delete KServe webhook configurations on the Nova control plane.
+# Nova cannot run pods, so these webhooks will never reach the controller and
+# block all InferenceService operations with timeout errors.
+# The webhooks will still function on workload clusters where the controller runs.
+kubectl delete mutatingwebhookconfiguration inferenceservice.serving.kserve.io 2>/dev/null || true
+kubectl delete validatingwebhookconfiguration clusterservingruntime.serving.kserve.io 2>/dev/null || true
+kubectl delete validatingwebhookconfiguration inferencegraph.serving.kserve.io 2>/dev/null || true
+kubectl delete validatingwebhookconfiguration inferenceservice.serving.kserve.io 2>/dev/null || true
+kubectl delete validatingwebhookconfiguration servingruntime.serving.kserve.io 2>/dev/null || true
+kubectl delete validatingwebhookconfiguration trainedmodel.serving.kserve.io 2>/dev/null || true
+#
 # Label CRDs so Nova can duplicate them to all workload clusters
 kubectl label crd clusterservingruntimes.serving.kserve.io   app.kubernetes.io/component=kserve
 kubectl label crd clusterstoragecontainers.serving.kserve.io app.kubernetes.io/component=kserve
