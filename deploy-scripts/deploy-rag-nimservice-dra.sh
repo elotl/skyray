@@ -1,7 +1,7 @@
 envsubst < ${RAG_PATH}/deploy/helm/nim-operator/rag-nimservice-dra.yaml | kubectl apply -n ${APP_NAMESPACE} -f -
 
-kubectl label resourceclaim/rag-claim                                       -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
-kubectl label resourceclaim/rag-claim-template                              -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
+kubectl label resourceclaimtemplate/rag-claim-non-llm                       -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
+kubectl label resourceclaimtemplate/rag-claim-llm                           -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
 kubectl label nimservices.apps.nvidia.com/nim-llm                           -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
 kubectl label nimservices.apps.nvidia.com/nemoretriever-page-elements-v2    -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
 kubectl label nimservices.apps.nvidia.com/nemoretriever-graphic-elements-v1 -n ${APP_NAMESPACE} app.kubernetes.io/instance=rag
