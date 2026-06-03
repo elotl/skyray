@@ -1,0 +1,114 @@
+apiVersion: leaderworkerset.x-k8s.io/v1
+kind: LeaderWorkerSet
+metadata:
+  name: sglang
+  labels:
+    app.kubernetes.io/instance: lws-sglang
+spec:
+  replicas: 1
+  leaderWorkerTemplate:
+    size: 1
+    restartPolicy: RecreateGroupOnPodRestart
+    leaderTemplate:
+      metadata:
+        labels:
+          role: leader
+      spec:
+        containers:
+          - name: sglang-leader
+            image: lmsysorg/sglang:v0.5.12
+            env:
+              - name: HF_TOKEN
+                value: $HF_TOKEN
+            command:
+              - python3
+              - -m
+              - sglang.launch_server
+              - --model-path
+              - microsoft/Phi-3-mini-4k-instruct
+              - --tp
+              - "1" # Size of Tensor Parallelism
+              - --dist-init-addr
+              - $(LWS_LEADER_ADDRESS):20000
+              - --nnodes
+              - $(LWS_GROUP_SIZE)
+              - --node-rank
+              - $(LWS_WORKER_INDEX)
+              - --trust-remote-code
+              - --host
+              - "0.0.0.0"
+              - --port
+              - "40000"
+              - "--disable-cuda-graph"
+              - "--disable-piecewise-cuda-graph"
+              - "--attention-backend"
+              - "triton"
+              - "--sampling-backend"
+              - "pytorch"
+              - "--disable-flashinfer-cutlass-moe-fp4-allgather"
+              - "--disable-flashinfer-autotune"
+            resources:
+              limits:
+                nvidia.com/gpu: "1"
+            ports:
+              - containerPort: 40000
+            readinessProbe:
+              tcpSocket:
+                port: 40000
+              initialDelaySeconds: 15
+              periodSeconds: 10
+            volumeMounts:
+              - mountPath: /dev/shm
+                name: dshm
+        volumes:
+          - name: dshm
+            emptyDir:
+              medium: Memory
+    workerTemplate:
+      spec:
+        containers:
+          - name: sglang-worker
+            image: lmsysorg/sglang:v0.5.12
+            env:
+            - name: HF_TOKEN
+              value: $HF_TOKEN
+            command:
+              - python3
+              - -m
+              - sglang.launch_server
+              - --model-path
+              - microsoft/Phi-3-mini-4k-instruct
+              - --tp
+              - "1" # Size of Tensor Parallelism
+              - --dist-init-addr
+              - $(LWS_LEADER_ADDRESS):20000
+              - --nnodes
+              - $(LWS_GROUP_SIZE)
+              - --node-rank
+              - $(LWS_WORKER_INDEX)
+              - --trust-remote-code
+            resources:
+              limits:
+                nvidia.com/gpu: "1"
+            volumeMounts:
+              - mountPath: /dev/shm
+                name: dshm
+        volumes:
+          - name: dshm
+            emptyDir:
+              medium: Memory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sglang-leader
+  labels:
+    app.kubernetes.io/instance: lws-sglang
+spec:
+  selector:
+    leaderworkerset.sigs.k8s.io/name: sglang
+    role: leader
+  ports:
+    - protocol: TCP
+      port: 40000
+      targetPort: 40000
