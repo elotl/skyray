@@ -1,3 +1,5 @@
+# Note: could have Nova policy w/overrides patch webhook settings back to original values in the target cluster(s)
+
 helm fetch https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dynamo-platform-${RELEASE_VERSION}.tgz
 helm install dynamo-platform dynamo-platform-${RELEASE_VERSION}.tgz \
  --set dynamo-operator.webhook.failurePolicy="Ignore" --set dynamo-operator.webhook.timeoutSeconds=3 $1

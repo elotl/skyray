@@ -5,6 +5,7 @@ kubectl label secret lws-webhook-server-cert --namespace lws-system             
 kubectl label validatingwebhookconfiguration lws-validating-webhook-configuration app.kubernetes.io/name=lws
 kubectl label mutatingwebhookconfiguration lws-mutating-webhook-configuration     app.kubernetes.io/name=lws
 
+# Note: could have Nova policy w/overrides patch webhook settings back to original values in the target cluster(s)
 kubectl patch validatingwebhookconfiguration lws-validating-webhook-configuration \
   --type='json' \
   -p='[
