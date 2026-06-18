@@ -1,0 +1,15 @@
+apiVersion: policy.elotl.co/v1alpha1
+kind: SchedulePolicy
+metadata:
+  name: app-capacity-policy-${APP_INSTANCE_NAME}
+spec:
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: Exists
+  resourceSelectors:
+    labelSelectors:
+    - matchLabels:
+        app.kubernetes.io/instance: ${APP_INSTANCE_NAME}
+  groupBy:
+    labelKey: app.kubernetes.io/instance
