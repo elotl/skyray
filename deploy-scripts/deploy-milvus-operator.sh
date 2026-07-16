@@ -1,5 +1,5 @@
 # $1 should be namespace specificiation e.g. "-n milvus-operator"
-helm install milvus-operator https://github.com/zilliztech/milvus-operator/releases/download/v1.3.6/milvus-operator-1.3.6.tgz $1
+helm install milvus-operator https://github.com/zilliztech/milvus-operator/releases/download/v1.3.7/milvus-operator-1.3.7.tgz --set enableWebhook=false $1
 
 kubectl label crd                milvusclusters.milvus.io                    app.kubernetes.io/name=milvus-operator
 kubectl label crd                milvuses.milvus.io                          app.kubernetes.io/name=milvus-operator
